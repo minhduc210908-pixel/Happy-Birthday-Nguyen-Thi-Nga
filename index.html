@@ -129,7 +129,6 @@ body{
     animation-iteration-count: 1, infinite;
 }
 @keyframes fall{ to{ top:120vh; } }
-
 @keyframes sway{
     0%{ transform:translateX(0) rotate(-6deg); }
     50%{ transform:translateX(18px) rotate(6deg); }
@@ -975,60 +974,38 @@ setTimeout(() => {
 }, 500);
 </script>
 <script>
-// Xử lý kéo thả ảnh: Ảnh đang kéo sẽ nổi lên trên cùng, thả ra bay về chỗ cũ
 document.addEventListener('pointerdown', function(e) {
   const card = e.target.closest('.photo-card');
   if (!card) return;
-
   e.preventDefault();
   card.classList.remove('returning');
-
-  // ĐẨY ẢNH ĐANG KÉO LÊN LỚP CAO NHẤT (NẰM TRÊN CÁC ẢNH KHÁC)
   card.style.zIndex = 10000;
-
   let startX = e.clientX;
   let startY = e.clientY;
-
   let currentX = parseFloat(card.dataset.x || 0);
   let currentY = parseFloat(card.dataset.y || 0);
-
   function onPointerMove(moveEvent) {
     let dx = moveEvent.clientX - startX;
     let dy = moveEvent.clientY - startY;
-
     let posX = currentX + dx;
     let posY = currentY + dy;
-
     card.dataset.currentX = posX;
     card.dataset.currentY = posY;
-
     const rot = card.style.getPropertyValue('--rot') || '0deg';
-    
-    // Khi kéo: dịch chuyển vị trí + phóng to nhẹ + luôn nằm trên các ảnh khác
     card.style.transform = `translate(calc(-50% + ${posX}px), calc(-50% + ${posY}px)) rotate(calc(90deg + ${rot})) scale(1.12)`;
   }
-
   function onPointerUp() {
     window.removeEventListener('pointermove', onPointerMove);
     window.removeEventListener('pointerup', onPointerUp);
-
-    // Bật hiệu ứng mượt để ảnh bay về chỗ cũ
     card.classList.add('returning');
-    
-    // Đưa tọa độ dịch chuyển về gốc (0, 0)
     card.dataset.x = 0;
     card.dataset.y = 0;
-
     const rot = card.style.getPropertyValue('--rot') || '0deg';
-    // Trở về kích thước chuẩn và vị trí ban đầu
     card.style.transform = `translate(-50%, -50%) rotate(calc(90deg + ${rot})) scale(1)`;
-
-    // SAU KHI BAY VỀ XONG (0.6s), TRẢ LẠI Z-INDEX BÌNH THƯỜNG CHO ẢNH
     setTimeout(() => {
       card.style.zIndex = '';
     }, 600);
   }
-
   window.addEventListener('pointermove', onPointerMove);
   window.addEventListener('pointerup', onPointerUp);
 });
